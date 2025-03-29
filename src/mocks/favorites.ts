@@ -10,6 +10,10 @@ export const FAVORITE_PLACES: Place[] = [
     type: 'Apartment',
     isPremium: true,
     poster: 'img/apartment-small-03.jpg',
+    coordinates: {
+      lat: 52.3909553943508,
+      lng: 4.85309666406198,
+    },
   },
   {
     id: 2,
@@ -20,6 +24,10 @@ export const FAVORITE_PLACES: Place[] = [
     type: 'Room',
     isPremium: false,
     poster: 'img/room-small.jpg',
+    coordinates: {
+      lat: 52.3909553943508,
+      lng: 4.85309666406198,
+    },
   },
   {
     id: 3,
@@ -30,5 +38,9 @@ export const FAVORITE_PLACES: Place[] = [
     type: 'Apartment',
     isPremium: true,
     poster: 'img/apartment-small-04.jpg',
+    coordinates: {
+      lat: 50.9509553943508,
+      lng: 6.85309666406198,
+    },
   },
 ];

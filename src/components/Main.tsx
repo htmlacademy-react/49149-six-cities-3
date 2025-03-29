@@ -1,6 +1,7 @@
 import { Place } from '../types';
 import PlaceCard from './PlaceCard';
 import { PLACES } from '../mocks/places';
+import Map from './Map';
 
 export default function Main() {
   return (
@@ -77,7 +78,7 @@ export default function Main() {
             </div>
           </section>
           <div className='cities__right-section'>
-            <section className='cities__map map'></section>
+            <Map points={PLACES} />
           </div>
         </div>
       </div>

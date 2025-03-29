@@ -1,18 +1,20 @@
+import { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { Place } from '../types';
 import { AuthStatus } from '../enums/auth';
-import PlaceCard from './PlaceCard';
+import { PLACES } from '../mocks/places';
+import { Review, reviews } from '../mocks/reviews';
+import Map from './Map';
+import NearPlaces from './NearPlaces';
+import OfferGallery from './OfferGallery';
 import ReviewsUser from './ReviewsUser';
 import ReviewsForm from './ReviewsForm';
 import PageNotFound from './PageNotFound';
-import { PLACES } from '../mocks/places';
-import { Review, reviews } from '../mocks/reviews';
 
 export default function Offer({ hasAccess }: { hasAccess: AuthStatus }) {
   const { id } = useParams();
-  const data = PLACES.filter((place: Place) => place.id === +id!)[0];
-  const dataOther = PLACES.filter((place: Place) => place.id !== +id!);
+  const data = useMemo(() => PLACES.find((place: Place) => place.id === Number(id)), [id]);
 
   if (!data) {
     return <PageNotFound />;
@@ -21,28 +23,8 @@ export default function Offer({ hasAccess }: { hasAccess: AuthStatus }) {
   return (
     <main className='page__main page__main--offer'>
       <section className='offer'>
-        <div className='offer__gallery-container container'>
-          <div className='offer__gallery'>
-            <div className='offer__image-wrapper'>
-              <img className='offer__image' src='img/room.jpg' alt='Photo studio' />
-            </div>
-            <div className='offer__image-wrapper'>
-              <img className='offer__image' src='img/apartment-01.jpg' alt='Photo studio' />
-            </div>
-            <div className='offer__image-wrapper'>
-              <img className='offer__image' src='img/apartment-02.jpg' alt='Photo studio' />
-            </div>
-            <div className='offer__image-wrapper'>
-              <img className='offer__image' src='img/apartment-03.jpg' alt='Photo studio' />
-            </div>
-            <div className='offer__image-wrapper'>
-              <img className='offer__image' src='img/studio-01.jpg' alt='Photo studio' />
-            </div>
-            <div className='offer__image-wrapper'>
-              <img className='offer__image' src='img/apartment-01.jpg' alt='Photo studio' />
-            </div>
-          </div>
-        </div>
+        <OfferGallery />
+
         <div className='offer__container container'>
           <div className='offer__wrapper'>
             {data.isPremium && (
@@ -108,7 +90,7 @@ export default function Offer({ hasAccess }: { hasAccess: AuthStatus }) {
             </div>
             <section className='offer__reviews reviews'>
               <h2 className='reviews__title'>
-                Reviews &middot; <span className='reviews__amount'>1</span>
+                Reviews &middot; <span className='reviews__amount'>{reviews.length}</span>
               </h2>
               <ul className='reviews__list'>
                 {reviews.map((review: Review) => (
@@ -119,17 +101,11 @@ export default function Offer({ hasAccess }: { hasAccess: AuthStatus }) {
             </section>
           </div>
         </div>
-        <section className='offer__map map'></section>
+
+        <Map points={PLACES} id={id} />
       </section>
       <div className='container'>
-        <section className='near-places places'>
-          <h2 className='near-places__title'>Other places in the neighbourhood</h2>
-          <div className='near-places__list places__list'>
-            {dataOther.map((v: Place) => (
-              <PlaceCard key={v.id} card={v} styled='near-places' />
-            ))}
-          </div>
-        </section>
+        <NearPlaces data={PLACES} />
       </div>
     </main>
   );

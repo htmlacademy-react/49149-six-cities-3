@@ -10,6 +10,10 @@ export const PLACES: Place[] = [
     type: 'Room',
     isPremium: true,
     poster: 'img/apartment-01.jpg',
+    coordinates: {
+      lat: 52.3909553943508,
+      lng: 4.85309666406198,
+    },
   },
   {
     id: 2,
@@ -20,6 +24,10 @@ export const PLACES: Place[] = [
     type: 'Apartment',
     isPremium: false,
     poster: 'img/apartment-02.jpg',
+    coordinates: {
+      lat: 52.3609553943508,
+      lng: 4.85309666406198,
+    },
   },
   {
     id: 3,
@@ -30,6 +38,10 @@ export const PLACES: Place[] = [
     type: 'Apartment',
     isPremium: true,
     poster: 'img/apartment-03.jpg',
+    coordinates: {
+      lat: 52.3909553943508,
+      lng: 4.929309666406198,
+    },
   },
   {
     id: 4,
@@ -40,5 +52,9 @@ export const PLACES: Place[] = [
     type: 'Room',
     isPremium: false,
     poster: 'img/room.jpg',
+    coordinates: {
+      lat: 52.3809553943508,
+      lng: 4.939309666406198,
+    },
   },
 ];
