@@ -17,7 +17,7 @@ export default function Main() {
   const activeCity = useTypedSelector((state: { app: { activeCity: string } }) => state.app.activeCity);
   const dataCityPlaces = useMemo(() => (sortedCityPlaces.length > 0 ? sortedCityPlaces : activeCityPlaces), [sortedCityPlaces, activeCityPlaces]);
 
-  const { data: offers, isLoading } = useGetOffersQuery(undefined, { refetchOnMountOrArgChange: true });
+  const { data: offers, isLoading } = useGetOffersQuery(undefined, { refetchOnMountOrArgChange: 1000 });
 
   useEffect(() => {
     if (offers && !isLoading && activeCity) {

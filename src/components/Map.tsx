@@ -62,9 +62,13 @@ export default function Map({ points, id }: MapProps) {
   );
 
   useEffect(() => {
-    if (map && points) {
+    if (map && Array.isArray(points)) {
       const layer = layerGroup();
       points.forEach((point: Place) => {
+        if (!point?.location?.latitude || !point?.location?.longitude) {
+          return;
+        }
+
         const marker = new Marker({
           lat: point.location.latitude,
           lng: point.location.longitude,

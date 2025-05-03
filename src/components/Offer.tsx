@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { Place } from '../types';
@@ -10,7 +10,7 @@ import OfferGallery from './OfferGallery';
 import PageNotFound from './PageNotFound';
 import { useTypedSelector } from '../hooks/useTypedSelector';
 import { useTypedActions } from '../hooks/useTypedActions';
-import { useGetNearbyOffersQuery, useGetOffersQuery } from '../services/api';
+import { useGetNearbyOffersQuery, useGetOffersQuery, useToggleFavoriteMutation } from '../services/api';
 import Spinner from './Spinner';
 
 export default function Offer({ hasAccess }: { hasAccess: AuthStatus }) {
@@ -21,11 +21,29 @@ export default function Offer({ hasAccess }: { hasAccess: AuthStatus }) {
   const activePointPlace = useTypedSelector((state: { app: { activePointPlace: Place } }) => state.app.activePointPlace);
   const styledRating = useMemo(() => Math.round(activePointPlace.rating * 100) / 5, [activePointPlace?.rating]);
 
+  const [mapNearPlaces, setMapNearPlaces] = useState<Place[]>([]);
+  const [isFavorite, setIsFavorite] = useState(activePointPlace?.isFavorite);
+  const [toggleFavorite] = useToggleFavoriteMutation();
+
+  const handleClick = () => {
+    setIsFavorite((prev) => !prev);
+    toggleFavorite({ status: activePointPlace.isFavorite ? 0 : 1, favorite: activePointPlace, offerId: String(id) });
+  };
+
   useEffect(() => {
-    if (offers && !isLoading) {
+    if (offers && !isLoading && id) {
       setActivePointPlace(offers.find((place: Place) => place.id === id) as Place);
     }
-  }, [id, offers]);
+  }, [id, offers, activePointPlace]);
+
+  useEffect(() => {
+    if (nearPlaces) {
+      const resultArray = [...nearPlaces.slice(0, 3), activePointPlace];
+      setMapNearPlaces(resultArray);
+    }
+
+    return () => {};
+  }, [nearPlaces, activePointPlace]);
 
   if (!nearPlaces || !offers) {
     if (isNearLoading || isLoading) {
@@ -48,11 +66,11 @@ export default function Offer({ hasAccess }: { hasAccess: AuthStatus }) {
             )}
             <div className='offer__name-wrapper'>
               <h1 className='offer__name'>{activePointPlace.title}</h1>
-              <button className='offer__bookmark-button button' type='button'>
+              <button className={`offer__bookmark-button button ${isFavorite ? 'offer__bookmark-button--active' : ''}`} type='button' onClick={handleClick}>
                 <svg className='offer__bookmark-icon' width='31' height='33'>
                   <use xlinkHref='#icon-bookmark'></use>
                 </svg>
-                <span className='visually-hidden'>To bookmarks</span>
+                <span className='visually-hidden'>{isFavorite ? 'In bookmarks' : 'To bookmarks'}</span>
               </button>
             </div>
             <div className='offer__rating rating'>
@@ -106,10 +124,10 @@ export default function Offer({ hasAccess }: { hasAccess: AuthStatus }) {
           </div>
         </div>
 
-        {nearPlaces.length > 0 ? <Map points={nearPlaces} id={id} /> : null}
+        {mapNearPlaces.length > 0 ? <Map points={mapNearPlaces} id={id} /> : null}
       </section>
       <div className='container'>
-        <NearPlaces data={nearPlaces} />
+        <NearPlaces data={mapNearPlaces.slice(0, 3)} />
       </div>
     </main>
   );

@@ -15,6 +15,7 @@ import { getToken } from '../services/token';
 import { AuthStatus } from '../enums/auth';
 import { useGetLoginQuery } from '../services/api';
 import { handleError } from '../services/errorHandler';
+import Spinner from './Spinner';
 
 export default function App(): JSX.Element {
   const authorizationStatus = useTypedSelector((state) => state.app.authorizationStatus);
@@ -40,6 +41,10 @@ export default function App(): JSX.Element {
       handleError({ error, setAuthorizationStatus, setUser });
     }
   }, [isLoading, isSuccess, data, setUser, isError, error, setAuthorizationStatus]);
+
+  if (isLoading || authorizationStatus === AuthStatus.Unknown) {
+    return <Spinner />;
+  }
 
   return (
     <BrowserRouter>

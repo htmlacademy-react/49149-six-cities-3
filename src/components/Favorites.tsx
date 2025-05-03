@@ -1,19 +1,36 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { Place } from '../types';
 import { Paths } from '../enums/paths';
 import PlaceCard from './PlaceCard';
-import { FAVORITE_PLACES } from '../mocks/favorites';
-
-const filterFavoritePlacesByCity = (city: string, data: Place[]) => {
-  const filteredPlaces = data.filter((place: Place) => place.city.name === city);
-  return filteredPlaces;
-};
-
-const amsterdamFavorites = filterFavoritePlacesByCity('Amsterdam', FAVORITE_PLACES);
-const cologneFavorites = filterFavoritePlacesByCity('Cologne', FAVORITE_PLACES);
+import { useGetFavoriteQuery } from '../services/api';
 
 export default function Favorites() {
+  const { data: favorites, isLoading } = useGetFavoriteQuery();
+  const [favoritesGroupCity, setFavoritesGroupCity] = useState<Record<string, typeof favorites>>({});
+
+  useEffect(() => {
+    if (favorites && !isLoading) {
+      // Группируем предложения по городам
+      const groupedFavoriteByCity = favorites.reduce<Record<string, typeof favorites>>((acc, favorite) => {
+        const cityName = favorite.city.name;
+
+        if (!acc[cityName]) {
+          acc[cityName] = [];
+        }
+        acc[cityName].push(favorite);
+
+        return acc;
+      }, {});
+
+      setFavoritesGroupCity(groupedFavoriteByCity);
+    }
+    return () => {
+      setFavoritesGroupCity({});
+    };
+  }, [favorites, isLoading]);
+
   return (
     <div className='page'>
       <main className='page__main page__main--favorites'>
@@ -21,35 +38,18 @@ export default function Favorites() {
           <section className='favorites'>
             <h1 className='favorites__title'>Saved listing</h1>
             <ul className='favorites__list'>
-              <li className='favorites__locations-items'>
-                <div className='favorites__locations locations locations--current'>
-                  <div className='locations__item'>
-                    <a className='locations__item-link' href='#'>
-                      <span>Amsterdam</span>
-                    </a>
+              {Object.entries(favoritesGroupCity).map(([city, places]) => (
+                <li key={city} className='favorites__locations-items'>
+                  <div className='favorites__locations locations locations--current'>
+                    <div className='locations__item'>
+                      <a className='locations__item-link' href='#'>
+                        <span>{city}</span>
+                      </a>
+                    </div>
                   </div>
-                </div>
-                <div className='favorites__places'>
-                  {amsterdamFavorites.map((place: Place) => (
-                    <PlaceCard key={place.id} card={place} styled='favorites' isBookmarkActive />
-                  ))}
-                </div>
-              </li>
-
-              <li className='favorites__locations-items'>
-                <div className='favorites__locations locations locations--current'>
-                  <div className='locations__item'>
-                    <a className='locations__item-link' href='#'>
-                      <span>Cologne</span>
-                    </a>
-                  </div>
-                </div>
-                <div className='favorites__places'>
-                  {cologneFavorites.map((place: Place) => (
-                    <PlaceCard key={place.id} card={place} styled='favorites' isBookmarkActive />
-                  ))}
-                </div>
-              </li>
+                  <div className='favorites__places'>{places && places.map((place: Place) => <PlaceCard key={place.id} card={place} styled='favorites' />)}</div>
+                </li>
+              ))}
             </ul>
           </section>
         </div>

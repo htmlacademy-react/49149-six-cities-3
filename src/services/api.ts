@@ -55,7 +55,27 @@ export const api = createApi({
       }),
       invalidatesTags: ['Comments'],
     }),
+    toggleFavorite: builder.mutation<Place, { status: 0 | 1; favorite: Place; offerId: string } & { offerId?: string }>({
+      query: ({ favorite, status, offerId }) => ({
+        url: `/favorite/${offerId}/${status}`,
+        method: 'POST',
+        body: {
+          favorite,
+        },
+      }),
+      invalidatesTags: ['Favorite'],
+    }),
   }),
 });
 
-export const { useGetOffersQuery, useGetFavoriteQuery, useGetLoginQuery, useLoginUserMutation, useLogoutUserMutation, useGetOfferCommentsQuery, useAddCommentMutation, useGetNearbyOffersQuery } = api;
+export const {
+  useGetOffersQuery,
+  useGetFavoriteQuery,
+  useGetLoginQuery,
+  useLoginUserMutation,
+  useLogoutUserMutation,
+  useGetOfferCommentsQuery,
+  useAddCommentMutation,
+  useGetNearbyOffersQuery,
+  useToggleFavoriteMutation,
+} = api;
