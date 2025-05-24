@@ -6,7 +6,7 @@ import { useTypedSelector } from '../hooks/useTypedSelector';
 import { dropToken, getToken } from '../services/token';
 import { useTypedActions } from '../hooks/useTypedActions';
 import { User } from '../types';
-import { useLogoutUserMutation } from '../services/api';
+import { useGetFavoriteQuery, useLogoutUserMutation } from '../services/api';
 
 export default function Header({ hasAccess }: { hasAccess: AuthStatus }) {
   const { pathname } = useLocation();
@@ -17,6 +17,7 @@ export default function Header({ hasAccess }: { hasAccess: AuthStatus }) {
   const { setUser, setAuthorizationStatus } = useTypedActions();
   const [logoutUser, { isLoading }] = useLogoutUserMutation();
   const token = getToken();
+  const { data: favorites, isLoading: isLoadingFavorite } = useGetFavoriteQuery(undefined, { skip: !user });
 
   const handleLogout = () => {
     try {
@@ -53,7 +54,7 @@ export default function Header({ hasAccess }: { hasAccess: AuthStatus }) {
                       <Link className='header__nav-link header__nav-link--profile' to={Paths.Favorites}>
                         <div className='header__avatar-wrapper user__avatar-wrapper' style={{ backgroundImage: `url(${user?.avatarUrl})` }}></div>
                         <span className='header__user-name user__name'>{user?.email ?? '...'}</span>
-                        <span className='header__favorite-count'>3</span>
+                        <span className='header__favorite-count'>{isLoadingFavorite ? '...' : favorites?.length}</span>
                       </Link>
                     </li>
 

@@ -1,12 +1,34 @@
-import { Navigate } from 'react-router-dom';
+import { Location, Navigate, useLocation } from 'react-router-dom';
 import { Paths } from '../enums/paths';
-import { AuthStatus } from '../enums/auth';
+import { useTypedSelector } from '../hooks/useTypedSelector';
 
 type PrivateRouteProps = {
   children: JSX.Element;
-  hasAccess: AuthStatus;
+  onlyUnAuth?: boolean;
 };
 
-export default function PrivateRoute({ children, hasAccess }: PrivateRouteProps) {
-  return hasAccess === AuthStatus.Auth ? children : <Navigate to={Paths.Login} />;
+type FromState = {
+  from: string;
+}
+
+export default function PrivateRoute({ children, onlyUnAuth = false }: PrivateRouteProps) {
+  const location: Location<FromState> = useLocation() as Location<FromState>;
+  const user = useTypedSelector((state) => state.app.user);
+
+  if (onlyUnAuth && user) {
+    const from = location.state?.from || Paths.Main;
+    return <Navigate to={from} replace />;
+  }
+
+  if (!onlyUnAuth && !user) {
+    return (
+      <Navigate
+        to={Paths.Login}
+        state={{ from: location.pathname }}
+        replace
+      />
+    );
+  }
+
+  return children;
 }

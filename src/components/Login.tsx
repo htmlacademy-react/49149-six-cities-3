@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { Location, useLocation, useNavigate } from 'react-router-dom';
 import { useRef } from 'react';
 import { ToastContainer } from 'react-toastify';
 import { useLoginUserMutation } from '../services/api';
@@ -7,13 +7,20 @@ import { AuthStatus } from '../enums/auth';
 import { saveToken } from '../services/token';
 import { ApiError } from '../types';
 import { handleError } from '../services/errorHandler';
+import { Paths } from '../enums/paths';
+
+type FromState = {
+  from: string;
+};
 
 export default function Login() {
   const [loginUser, { isLoading }] = useLoginUserMutation();
   const loginRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+  const location = useLocation() as Location<FromState>;
 
+  const from = location.state?.from || Paths.Main;
   const { setAuthorizationStatus, setUser } = useTypedActions();
 
   const handleFormSubmitAsync = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
@@ -33,7 +40,8 @@ export default function Login() {
       setAuthorizationStatus(AuthStatus.Auth);
       saveToken(result.token);
       setUser(result);
-      navigate('/');
+
+      navigate(from, { replace: true });
     } catch (error) {
       const typeError = error as ApiError;
       handleError({ error: typeError, setAuthorizationStatus, setUser });

@@ -5,20 +5,30 @@ import { Place } from '../types';
 import { Paths } from '../enums/paths';
 import { useTypedSelector } from '../hooks/useTypedSelector';
 import { useTypedActions } from '../hooks/useTypedActions';
+import { useToggleFavoriteMutation } from '../services/api';
+import { AuthStatus } from '../enums/auth';
 
 type CardProps = {
   card: Place;
   styled?: string;
-  isBookmarkActive?: boolean;
 };
 
-export default function PlaceCard({ card, styled = 'cities', isBookmarkActive = false }: CardProps): JSX.Element {
+export default function PlaceCard({ card, styled = 'cities' }: CardProps): JSX.Element {
+  const authorizationStatus = useTypedSelector((state) => state.app.authorizationStatus);
   const activePointPlace = useTypedSelector((state: { app: { activePointPlace: Place } }) => state.app.activePointPlace);
   const { title: name, price, rating, type, previewImage: poster, isPremium, id, city } = card;
   const styledRating = useMemo(() => Math.round(rating * 100) / 5, [rating]);
   const [hasHoverClass, setHasHoverClass] = useState(false);
   const { setActivePointPlace } = useTypedActions();
   const linkPath = Paths.Offer.replace(':city', String(city.name.toLocaleLowerCase())).replace(':id', String(id));
+
+  const [isFavorite, setIsFavorite] = useState(card.isFavorite);
+  const [toggleFavorite] = useToggleFavoriteMutation();
+
+  const handleClick = () => {
+    setIsFavorite((prev) => !prev);
+    toggleFavorite({ status: card.isFavorite ? 0 : 1, favorite: card, offerId: String(id) });
+  };
 
   const handleMouseOver = () => {
     setHasHoverClass(true);
@@ -48,11 +58,11 @@ export default function PlaceCard({ card, styled = 'cities', isBookmarkActive = 
             <b className='place-card__price-value'>&euro;{price}</b>
             <span className='place-card__price-text'>&#47;&nbsp;night</span>
           </div>
-          <button className={`place-card__bookmark-button button ${isBookmarkActive ? 'place-card__bookmark-button--active' : ''}`} type='button'>
+          <button className={`place-card__bookmark-button button ${isFavorite ? 'place-card__bookmark-button--active' : ''}`} type='button' onClick={handleClick} disabled={authorizationStatus !== AuthStatus.Auth}>
             <svg className='place-card__bookmark-icon' width='18' height='19'>
               <use xlinkHref='#icon-bookmark'></use>
             </svg>
-            <span className='visually-hidden'>{isBookmarkActive ? 'In bookmarks' : 'To bookmarks'}</span>
+            <span className='visually-hidden'>{isFavorite ? 'In bookmarks' : 'To bookmarks'}</span>
           </button>
         </div>
         <div className='place-card__rating rating'>
