@@ -1,5 +1,6 @@
+import { shallowEqual } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { useMemo, useState } from 'react';
+import { memo, useCallback, useState } from 'react';
 
 import { Place } from '../types';
 import { Paths } from '../enums/paths';
@@ -7,17 +8,16 @@ import { useTypedSelector } from '../hooks/useTypedSelector';
 import { useTypedActions } from '../hooks/useTypedActions';
 import { useToggleFavoriteMutation } from '../services/api';
 import { AuthStatus } from '../enums/auth';
+import { selectActivePointPlace, selectAuthorizationStatus } from '../store/selectors';
 
 type CardProps = {
   card: Place;
   styled?: string;
 };
 
-export default function PlaceCard({ card, styled = 'cities' }: CardProps): JSX.Element {
-  const authorizationStatus = useTypedSelector((state) => state.app.authorizationStatus);
-  const activePointPlace = useTypedSelector((state: { app: { activePointPlace: Place } }) => state.app.activePointPlace);
+function PlaceCard({ card, styled = 'cities' }: CardProps): JSX.Element {
   const { title: name, price, rating, type, previewImage: poster, isPremium, id, city } = card;
-  const styledRating = useMemo(() => Math.round(rating * 100) / 5, [rating]);
+  const styledRating = Math.round(rating * 20);
   const [hasHoverClass, setHasHoverClass] = useState(false);
   const { setActivePointPlace } = useTypedActions();
   const linkPath = Paths.Offer.replace(':city', String(city.name.toLocaleLowerCase())).replace(':id', String(id));
@@ -25,20 +25,28 @@ export default function PlaceCard({ card, styled = 'cities' }: CardProps): JSX.E
   const [isFavorite, setIsFavorite] = useState(card.isFavorite);
   const [toggleFavorite] = useToggleFavoriteMutation();
 
+  const { authorizationStatus, activePointPlace } = useTypedSelector(
+    (state) => ({
+      authorizationStatus: selectAuthorizationStatus(state),
+      activePointPlace: selectActivePointPlace(state),
+    }),
+    shallowEqual, // Добавляем поверхностное сравнение
+  );
+
   const handleClick = () => {
     setIsFavorite((prev) => !prev);
     toggleFavorite({ status: card.isFavorite ? 0 : 1, favorite: card, offerId: String(id) });
   };
 
-  const handleMouseOver = () => {
+  const handleMouseOver = useCallback(() => {
     setHasHoverClass(true);
     setActivePointPlace(card);
-  };
+  }, [card, setActivePointPlace]);
 
-  const handleMouseOut = () => {
+  const handleMouseOut = useCallback(() => {
     setHasHoverClass(false);
     setActivePointPlace({} as Place);
-  };
+  }, [setActivePointPlace]);
 
   return (
     <article className={`${styled}__card place-card`} id={id}>
@@ -49,7 +57,7 @@ export default function PlaceCard({ card, styled = 'cities' }: CardProps): JSX.E
       )}
       <div className={`${styled}__image-wrapper place-card__image-wrapper`}>
         <Link to={linkPath} style={{ opacity: hasHoverClass ? 0.5 : 1 }} onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}>
-          <img className='place-card__image' src={poster} width={styled === 'favorites' ? '150' : '260'} height={styled === 'favorites' ? '110' : '200'} alt='Place image' />
+          <img className='place-card__image' src={poster} width={styled === 'favorites' ? '150' : '260'} height={styled === 'favorites' ? '110' : '200'} alt='Place image' loading='lazy' />
         </Link>
       </div>
       <div className={`${styled}__card-info place-card__info`}>
@@ -81,3 +89,5 @@ export default function PlaceCard({ card, styled = 'cities' }: CardProps): JSX.E
     </article>
   );
 }
+
+export default memo(PlaceCard);

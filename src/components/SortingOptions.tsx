@@ -1,10 +1,12 @@
+import { memo } from 'react';
+
 import { useToggle } from '../hooks/useToggle';
 import useSortingOptions from '../hooks/useSortingOptions';
 import { useTypedSelector } from '../hooks/useTypedSelector';
-import { Place } from '../types';
+import { selectorActiveCityPlaces } from '../store/selectors';
 
-export default function SortingOptions() {
-  const activeCityPlaces = useTypedSelector((state: { app: { activeCityPlaces: Place[] } }) => state.app.activeCityPlaces);
+function SortingOptions() {
+  const activeCityPlaces = useTypedSelector(selectorActiveCityPlaces);
   const { activeOption, setActiveOption, setSortName, setSortedPlacesByOption } = useSortingOptions(activeCityPlaces);
   const { isOpen, toggle, close } = useToggle();
 
@@ -70,3 +72,5 @@ export default function SortingOptions() {
     </form>
   );
 }
+
+export default memo(SortingOptions);

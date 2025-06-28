@@ -14,7 +14,7 @@ import { useGetNearbyOffersQuery, useGetOffersQuery, useToggleFavoriteMutation }
 import Spinner from './Spinner';
 
 export default function Offer({ hasAccess }: { hasAccess: AuthStatus }) {
-  const { id } = useParams();
+  const { id, city } = useParams();
   const { setActivePointPlace } = useTypedActions();
   const { data: offers, isLoading } = useGetOffersQuery();
   const { data: nearPlaces, isLoading: isNearLoading } = useGetNearbyOffersQuery(id as string);
@@ -124,7 +124,7 @@ export default function Offer({ hasAccess }: { hasAccess: AuthStatus }) {
           </div>
         </div>
 
-        {mapNearPlaces.length > 0 ? <Map points={mapNearPlaces} id={id} /> : null}
+        {mapNearPlaces.length > 0 ? <Map points={mapNearPlaces} id={id} city={city!} /> : null}
       </section>
       <div className='container'>
         <NearPlaces data={mapNearPlaces.slice(0, 3)} />

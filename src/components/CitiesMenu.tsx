@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
 import { useTypedActions } from '../hooks/useTypedActions';
@@ -11,10 +11,15 @@ export default function CitiesMenu() {
   const CITIES = ['Paris', 'Cologne', 'Brussels', 'Amsterdam', 'Hamburg', 'Dusseldorf'];
   const activeCity = useTypedSelector((state: { app: { activeCity: string } }) => state.app.activeCity);
   const { changeCity } = useTypedActions();
-
-  const handleClick = () => {
-    changeCity(paramCity ?? 'Paris');
-  };
+  const getStyleClass = useCallback(
+    (city: string) => {
+      if (city === activeCity || city.toLowerCase() === paramCity?.toLowerCase()) {
+        return 'tabs__item--active';
+      }
+      return '';
+    },
+    [activeCity, paramCity],
+  );
 
   useEffect(() => {
     changeCity(paramCity ?? 'Paris');
@@ -25,7 +30,7 @@ export default function CitiesMenu() {
       <ul className='locations__list tabs__list'>
         {CITIES.map((city: string) => (
           <li className='locations__item' key={city}>
-            <Link onClick={handleClick} to={Paths.MainCity.replace(':city', city.toLocaleLowerCase())} className={`locations__item-link tabs__item ${city === activeCity || city.toLocaleLowerCase() === paramCity ? 'tabs__item--active' : ''}`}>
+            <Link to={Paths.MainCity.replace(':city', city.toLocaleLowerCase())} className={`locations__item-link tabs__item ${getStyleClass(city)}`}>
               <span>{city}</span>
             </Link>
           </li>

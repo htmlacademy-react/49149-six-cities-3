@@ -1,9 +1,9 @@
-import { changeCity, setAuthorizationStatus, setActiveCityPlaces, setActivePointPlace, setSortedPlaces, setUser } from './reducer';
+import { changeCity, setAuthorizationStatus, setAllPlaces, setActivePointPlace, setSortedPlaces, setUser } from './reducer';
 
 export const allActions = {
   setAuthorizationStatus,
   changeCity,
-  setActiveCityPlaces,
+  setAllPlaces,
   setActivePointPlace,
   setSortedPlaces,
   setUser,

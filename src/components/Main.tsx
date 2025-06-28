@@ -1,29 +1,31 @@
 import { useEffect, useMemo } from 'react';
+import { shallowEqual } from 'react-redux';
 
-import { Place } from '../types';
 import Map from './Map';
-import PlaceCard from './PlaceCard';
 import CitiesMenu from './CitiesMenu';
-import SortingOptions from './SortingOptions';
 import { useTypedSelector } from '../hooks/useTypedSelector';
 import { useTypedActions } from '../hooks/useTypedActions';
 import { useGetOffersQuery } from '../services/api';
 import Spinner from './Spinner';
+import { selectActiveCity, selectorActiveCityPlaces, selectorCombinedPlaces, selectPlacesCount } from '../store/selectors';
+import PlaceCardList from './PlaceCardList';
 
 export default function Main() {
-  const { setActiveCityPlaces } = useTypedActions();
-  const activeCityPlaces = useTypedSelector((state: { app: { activeCityPlaces: Place[] } }) => state.app.activeCityPlaces);
-  const sortedCityPlaces = useTypedSelector((state: { app: { sortedCityPlaces: Place[] } }) => state.app.sortedCityPlaces);
-  const activeCity = useTypedSelector((state: { app: { activeCity: string } }) => state.app.activeCity);
-  const dataCityPlaces = useMemo(() => (sortedCityPlaces.length > 0 ? sortedCityPlaces : activeCityPlaces), [sortedCityPlaces, activeCityPlaces]);
+  const { setAllPlaces } = useTypedActions();
+  const { data: offers, isLoading } = useGetOffersQuery(undefined, { refetchOnMountOrArgChange: 60000 });
 
-  const { data: offers, isLoading } = useGetOffersQuery(undefined, { refetchOnMountOrArgChange: 1000 });
+  const activeCityPlaces = useTypedSelector(selectorActiveCityPlaces, shallowEqual);
+  const activeCity = useTypedSelector(selectActiveCity);
+  const placesCount = useTypedSelector(selectPlacesCount);
+  const dataCityPlaces = useTypedSelector(selectorCombinedPlaces);
+
+  const mapPoints = useMemo(() => activeCityPlaces, [activeCityPlaces]);
 
   useEffect(() => {
-    if (offers && !isLoading && activeCity) {
-      setActiveCityPlaces(offers);
+    if (offers && !isLoading) {
+      setAllPlaces(offers);
     }
-  }, [!!offers, isLoading, activeCity]);
+  }, [!!offers, isLoading]);
 
   if (isLoading) {
     return (
@@ -46,21 +48,8 @@ export default function Main() {
 
       <div className='cities'>
         <div className='cities__places-container container'>
-          <section className='cities__places places'>
-            <h2 className='visually-hidden'>Places</h2>
-            <b className='places__found'>
-              {activeCityPlaces.length} places to stay in {activeCity}
-            </b>
-            <SortingOptions />
-            <div className='cities__places-list places__list tabs__content'>
-              {dataCityPlaces.map((place: Place) => (
-                <PlaceCard key={place.id} card={place} />
-              ))}
-            </div>
-          </section>
-          <div className='cities__right-section'>
-            {activeCityPlaces && activeCityPlaces.length > 0 && <Map points={activeCityPlaces} />}
-          </div>
+          <PlaceCardList placesCount={placesCount} activeCity={activeCity} dataCityPlaces={dataCityPlaces} />
+          <div className='cities__right-section'>{activeCityPlaces && placesCount > 0 && <Map points={mapPoints} city={activeCity} />}</div>
         </div>
       </div>
     </main>
