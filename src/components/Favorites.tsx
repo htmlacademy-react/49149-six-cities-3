@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { Place } from '../types';
 import { Paths } from '../enums/paths';
-import PlaceCard from './PlaceCard';
 import { useGetFavoriteQuery } from '../services/api';
+import { Place } from '../types';
+import PlaceCard from './PlaceCard';
 
 export default function Favorites() {
   const { data: favorites, isLoading } = useGetFavoriteQuery();

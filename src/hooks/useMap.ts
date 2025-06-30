@@ -8,17 +8,12 @@ function useMap(mapRef: MutableRefObject<HTMLElement | null>, points: Place[]): 
 
   const mapCenter = useMemo(() => {
     if (!Array.isArray(points) || points.length === 0) {
-      throw new Error('Массив точек пуст');
+      return { latitude: 0, longitude: 0, zoom: 10 };
     }
 
     let sumLat = 0;
     let sumLng = 0;
     let sumZoom = 0;
-
-    if (points.length === 0) {
-      return { latitude: 0, longitude: 0, zoom: 10 };
-    }
-
     let validPointsCount = 0;
 
     points.forEach((place) => {

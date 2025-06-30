@@ -16,6 +16,7 @@ import Offer from './Offer';
 import PageNotFound from './PageNotFound';
 import PrivateRoute from './PrivateRoute';
 import Spinner from './Spinner';
+import { selectAuthorizationStatus } from '../store/selectors';
 
 // 1. AuthStatus.Unknown
 // При первой загрузке (начальное состояние)
@@ -35,7 +36,7 @@ import Spinner from './Spinner';
 // При наличии валидного токена и подтверждении от сервера
 
 export default function App(): JSX.Element {
-  const authorizationStatus = useTypedSelector((state) => state.app.authorizationStatus);
+  const authorizationStatus = useTypedSelector(selectAuthorizationStatus);
   const { setAuthorizationStatus, setUser } = useTypedActions();
   const token = getToken();
   const { data, isLoading, isSuccess, isError, error } = useGetLoginQuery(undefined, {

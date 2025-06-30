@@ -1,6 +1,7 @@
 import { Location, Navigate, useLocation } from 'react-router-dom';
 import { Paths } from '../enums/paths';
 import { useTypedSelector } from '../hooks/useTypedSelector';
+import { selectUser } from '../store/selectors';
 
 type PrivateRouteProps = {
   children: JSX.Element;
@@ -13,7 +14,7 @@ type FromState = {
 
 export default function PrivateRoute({ children, onlyUnAuth = false }: PrivateRouteProps) {
   const location: Location<FromState> = useLocation() as Location<FromState>;
-  const user = useTypedSelector((state) => state.app.user);
+  const user = useTypedSelector(selectUser);
 
   if (onlyUnAuth && user) {
     const from = location.state?.from || Paths.Main;
